@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.oracle.mybatis.dao.UserDao">
+    <select id="get" resultType="com.oracle.mybatis.domain.UserDO">
+        select id,user_name,password,sex,hobbies from t_user where id = #{value}
+    </select>
+    
+    
+    <resultMap id="list" type="com.oracle.mybatis.domain.UserDO">
+    <result property="id" column="id" />
+    <result property="userName" column="user_name" />
+    <result property="password" column="password" />   
+    <result property="sex" column="sex" />
+    <result property="hobbies" column="hobbies" typeHandler="com.oracle.mybatis.typehandler.HobbyTypehandler" />
+	</resultMap>
+
+		<select id="list" resultMap="list">
+		     select id,user_name,password,sex,hobbies from t_user
+		</select>
+  
+    
+    <select id="count" resultType="int">
+        select count(*) from t_user
+        <where>
+            <if test="id != null   and id != '-1'  " > and id = #{id} </if>
+            <if test="userName != null  and userName != ''  " > and user_name = #{userName} </if>
+            <if test="password != null  and password != ''  " > and password = #{password} </if>
+            
+            <if test="sex != null   and sex != '-1'  " > and sex = #{sex} </if>
+        </where>
+    </select>
+    
+    <!-- <insert id="save" parameterType="com.oracle.mybatis.domain.UserDO" useGeneratedKeys="true" keyProperty="id"> -->
+     <insert id="save" parameterType="com.oracle.mybatis.domain.UserDO" >
+        insert into t_user
+        (
+        	id,
+            user_name,
+            password,            
+            sex,
+            hobbies
+        )
+        values
+        (
+        	#{id},
+            #{userName},
+            #{password},            
+            #{sex},
+            #{hobbies,typeHandler=com.oracle.mybatis.typehandler.HobbyTypehandler}
+        )
+    </insert>
+    
+    <update id="update" parameterType="com.oracle.mybatis.domain.UserDO">
+        update t_user
+        <set>
+            <if test="userName != null">user_name = #{userName}, </if>
+            <if test="password != null">password = #{password}, </if>            
+            <if test="sex != null">sex = #{sex}</if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="remove">
+        delete from t_user where id = #{value}
+    </delete>
+ 
+    <delete id="batchRemove">
+        delete from t_user where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
